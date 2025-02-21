@@ -1,6 +1,6 @@
 import sys
 import random
-from PyQt6 import QtWidgets, uic, QtGui
+from PyQt6 import QtWidgets, QtGui
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPainter, QColor
 
@@ -14,29 +14,38 @@ class CircleWidget(QtWidgets.QWidget):
         diameter = random.randint(10, 100)
         x = random.randint(0, self.width() - diameter)
         y = random.randint(0, self.height() - diameter)
-        self.circles.append((x, y, diameter))
+        color = QColor(random.randint(0, 255), random.randint(
+            0, 255), random.randint(0, 255))
+        self.circles.append((x, y, diameter, color))
         self.update()
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        painter.setBrush(QColor("yellow"))
-        painter.setPen(Qt.PenStyle.NoPen)
 
-        for x, y, diameter in self.circles:
+        for x, y, diameter, color in self.circles:
+            painter.setBrush(color)
+            painter.setPen(Qt.PenStyle.NoPen)
             painter.drawEllipse(x, y, diameter, diameter)
 
 
 class MainApp(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("UI.ui", self)
+        self.setWindowTitle("PyQt6 Circles")
+        self.setGeometry(100, 100, 400, 300)
 
-        # Создаём виджет для рисования и добавляем его в layout
+        self.central_widget = QtWidgets.QWidget()
+        self.setCentralWidget(self.central_widget)
+
+        self.layout = QtWidgets.QVBoxLayout(self.central_widget)
+
+        self.pushButton = QtWidgets.QPushButton("Добавить круг")
+        self.layout.addWidget(self.pushButton)
+
         self.canvas = CircleWidget(self)
-        self.verticalLayout.addWidget(self.canvas)
+        self.layout.addWidget(self.canvas)
 
-        # Подключаем кнопку
         self.pushButton.clicked.connect(self.canvas.add_circle)
 
 
